@@ -1,20 +1,26 @@
 package com.parkingspots;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class Main {
 
     public static void main(String[] args) {
-        List<String[]> brojParkingMesta = CSVReader.readFromCSV("numberOfParkingSpots.csv");
-        int parkingSpots = Integer.parseInt(brojParkingMesta.get(0)[0]);
+        List<String[]> numberOfParkingSpots = CSVReader.readFromCSV("numberOfParkingSpots.csv");
+        int parkingSpots = Integer.parseInt(numberOfParkingSpots.get(0)[0]);
 
-        List<String[]> brojDanaUMesecu = CSVReader.readFromCSV("numberOfDaysInMonth.csv");
-        int daysInMonth = Integer.parseInt(brojDanaUMesecu.get(0)[0]);
+        List<String[]> targetDate = CSVReader.readFromCSV("targetDate.csv");
+        LocalDate startDate = LocalDate.parse(targetDate.get(0)[0]);
 
-        ParkingCalc pc = new ParkingCalc(daysInMonth, parkingSpots);
+        CalendarHelper calendarHelper = new CalendarHelper(startDate);
+        int workDaysInMonth = calendarHelper.numberOfWorkDaysInMonth();
 
-        List<ParkingCalc.Entry> entries = new ArrayList<>();
+        ParkingCalc pc = new ParkingCalc(workDaysInMonth, parkingSpots);
+
+        List<Entry> entries = new ArrayList<>();
         String employeeListFile = "employees.csv";
         List<String[]> lista = CSVReader.readFromCSV(employeeListFile);
         for (String[] elem : lista) {
@@ -25,17 +31,27 @@ public class Main {
             //elem[1] -- ratio
             //elem[2] -- days to ignore
             if (elem.length == 3) {
-                entries.add(ParkingCalc.Entry.createEntry(elem[0], Float.parseFloat(elem[1]), elem[2]));
+                entries.add(createEntry(elem[0], Float.parseFloat(elem[1]), elem[2], calendarHelper));
             }
             else {
-                entries.add(new ParkingCalc.Entry(elem[0], Float.parseFloat(elem[1])));
+                entries.add(new Entry(elem[0], Float.parseFloat(elem[1])));
             }
         }
 
-        List<ParkingCalc.DedicatedEntry> dedicatedEntries = pc.calcDaysPerRatios(entries);
-        List<ParkingCalc.DistributedEntry> distributedEntries = pc.distributeCalculatedDays(dedicatedEntries);
-        for (ParkingCalc.DistributedEntry dise : distributedEntries) {
-            System.out.println(dise);
+        List<DedicatedEntry> dedicatedEntries = pc.calcDaysPerRatios(entries);
+        List<DistributedEntry> distributedEntries = pc.distributeCalculatedDays(dedicatedEntries);
+        for (DistributedEntry dise : distributedEntries) {
+            CalendarEntry calendarEntry = new CalendarEntry(dise, calendarHelper);
+            System.out.println(calendarEntry);
         }
+    }
+
+    static final Entry createEntry(String name, float ratio, String ignoreDays, CalendarHelper calendarHelper) {
+        if (ignoreDays == null || ignoreDays.length() == 0) {
+            return new Entry(name, ratio);
+        }
+        List<LocalDate> ignoredDays = Arrays.stream(ignoreDays.split(":")).map(item -> LocalDate.parse(item)).collect(Collectors.toList());
+        List<Integer> ignoredIndices = calendarHelper.indicesFromDays(ignoredDays);
+        return new Entry(name, ratio, ignoredIndices);
     }
 }

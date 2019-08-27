@@ -1,79 +1,14 @@
 package com.parkingspots;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.List;
 
 class ParkingCalc {
-    private final int daysInMonth;
+    private final int numberOfWorkDays;
     private final int parkingSpots;
 
-    static class Entry {
-        final String name;
-        final float ratio;
-        final List<Integer> daysToIgnore;
-
-        Entry(String name, float ratio, List<Integer> daysToIgnore) {
-            this.name = name;
-            this.ratio = ratio;
-            this.daysToIgnore = daysToIgnore;
-        }
-
-        Entry(String name, float ratio) {
-            this.name = name;
-            this.ratio = ratio;
-            this.daysToIgnore = new ArrayList<>();
-        }
-
-        static final Entry createEntry(String name, float ratio, String ignoreDays) {
-            if (ignoreDays == null || ignoreDays.length() == 0) {
-                return new Entry(name, ratio);
-            }
-            List<Integer> ignores = Arrays.stream(ignoreDays.split(":")).map(item -> Integer.parseInt(item)).collect(Collectors.toList());
-            return new Entry(name, ratio, ignores);
-        }
-    }
-
-    public class DedicatedEntry extends Entry {
-        int days;
-        int extraDays = 0;
-        int remainingDays = 0;
-
-        DedicatedEntry(Entry entry) {
-            super(entry.name, entry.ratio, entry.daysToIgnore);
-        }
-        DedicatedEntry(DedicatedEntry entry) {
-            super(entry.name, entry.ratio, entry.daysToIgnore);
-            this.days = entry.days;
-            this.extraDays = entry.extraDays;
-            this.remainingDays = entry.remainingDays;
-        }
-
-        @Override
-        public String toString() {
-            return "Person " + name + " with ratio " + ratio + " has " + days + " days in month and " + extraDays + " extra days and " + remainingDays + " remaining days. ";
-        }
-    }
-
-    public class DistributedEntry extends DedicatedEntry {
-        List<Integer> distributedDays = new ArrayList<>();
-
-        DistributedEntry(DedicatedEntry entry) {
-            super(entry);
-        }
-
-        @Override
-        public String toString() {
-            String s = super.toString();
-            s += "Distributed Days: ";
-            for (Integer i : distributedDays) {
-                s += i + ", ";
-            }
-            return s;
-        }
-    }
-
-    ParkingCalc(int daysInMonth, int parkingSpots) {
-        this.daysInMonth = daysInMonth;
+    ParkingCalc(int numberOfWorkDays, int parkingSpots) {
+        this.numberOfWorkDays = numberOfWorkDays;
         this.parkingSpots = parkingSpots;
     }
 
@@ -86,10 +21,10 @@ class ParkingCalc {
         for (DedicatedEntry de : dedicatedEntries) {
             sumDays += de.days;
         }
-        int moreDays = daysInMonth * parkingSpots - sumDays;
+        int moreDays = numberOfWorkDays * parkingSpots - sumDays;
         if (moreDays > 0 ) {
             for (DedicatedEntry de : dedicatedEntries) {
-                if (de.days < daysInMonth) {
+                if (de.days < numberOfWorkDays) {
                     de.days += 1;
                     de.extraDays += 1;
                     moreDays--;
@@ -115,14 +50,14 @@ class ParkingCalc {
             sumRatios += entry.ratio;
         }
         //minSpots is the number of parking days a person with ratio 1.0 will have
-        float minSpots = (daysInMonth * availableParkingSpots / sumRatios);
+        float minSpots = (numberOfWorkDays * availableParkingSpots / sumRatios);
         List<DedicatedEntry> dedicatedEntries = new ArrayList<>();
         List<DedicatedEntry> overlapEntries = new ArrayList<>();
         for (Entry entry : entries) {
             DedicatedEntry de = new DedicatedEntry(entry);
             de.days = (int) (entry.ratio * minSpots);
-            if (de.days > (daysInMonth - entry.daysToIgnore.size())) {
-                de.days = (daysInMonth - entry.daysToIgnore.size());
+            if (de.days > (numberOfWorkDays - entry.daysToIgnore.size())) {
+                de.days = (numberOfWorkDays - entry.daysToIgnore.size());
                 overlapEntries.add(de);
             }
             else {
@@ -158,7 +93,7 @@ class ParkingCalc {
             entries.add(new DistributedEntry(dedicatedEntry));
         }
 
-        int remainingDays = daysInMonth;
+        int remainingDays = numberOfWorkDays;
         while (remainingDays > 0) {
             entries.sort((o1, o2) -> o2.remainingDays - o1.remainingDays);
             int stepDays = Math.max(5, entries.get(0).remainingDays);
@@ -172,7 +107,7 @@ class ParkingCalc {
                     futureRemainingDays = remainingDays - stepDays;
                 }
             }
-            int from = daysInMonth - remainingDays + 1;
+            int from = numberOfWorkDays - remainingDays + 1;
             for (int targetedEmployeeNum = 0; targetedEmployeeNum < currentlyAvailableParkingSpots; targetedEmployeeNum++) {
                 List<Integer> notFilledDays = fillDays(entries.get(targetedEmployeeNum).distributedDays, from, from + stepDays - 1, entries.get(targetedEmployeeNum).daysToIgnore);
                 entries.get(targetedEmployeeNum).remainingDays -= (stepDays - notFilledDays.size());
