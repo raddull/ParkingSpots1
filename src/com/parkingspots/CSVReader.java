@@ -1,4 +1,4 @@
-package com.smsi;
+package com.parkingspots;
 
 import java.io.BufferedReader;
 import java.io.FileReader;

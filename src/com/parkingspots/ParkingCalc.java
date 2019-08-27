@@ -1,4 +1,4 @@
-package com.smsi;
+package com.parkingspots;
 
 import java.util.*;
 import java.util.stream.Collectors;

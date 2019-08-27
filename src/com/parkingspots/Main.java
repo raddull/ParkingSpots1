@@ -1,4 +1,4 @@
-package com.smsi;
+package com.parkingspots;
 
 import java.util.ArrayList;
 import java.util.List;
