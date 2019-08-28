@@ -24,7 +24,7 @@ class ParkingCalc {
         int moreDays = numberOfWorkDays * parkingSpots - sumDays;
         if (moreDays > 0 ) {
             for (DedicatedEntry de : dedicatedEntries) {
-                if (de.days < numberOfWorkDays) {
+                if (de.days + de.daysToIgnore.size() < numberOfWorkDays) {
                     de.days += 1;
                     de.extraDays += 1;
                     moreDays--;
@@ -109,16 +109,23 @@ class ParkingCalc {
             }
             int from = numberOfWorkDays - remainingDays + 1;
             for (int targetedEmployeeNum = 0; targetedEmployeeNum < currentlyAvailableParkingSpots; targetedEmployeeNum++) {
-                List<Integer> notFilledDays = fillDays(entries.get(targetedEmployeeNum).distributedDays, from, from + stepDays - 1, entries.get(targetedEmployeeNum).daysToIgnore);
-                entries.get(targetedEmployeeNum).remainingDays -= (stepDays - notFilledDays.size());
+                final DistributedEntry targetedEntry = entries.get(targetedEmployeeNum);
+                if (targetedEntry.remainingDays <= 0) {
+                    continue;
+                }
+                List<Integer> notFilledDays = fillDays(targetedEntry.distributedDays, from, from + stepDays - 1, targetedEntry.daysToIgnore);
+                targetedEntry.remainingDays -= (stepDays - notFilledDays.size());
                 //assign not filled days to employees that can use them
                 for (Integer notFilledDay : notFilledDays) {
                     //start from employee that will not be included in this distribution
                     int nonTargetedEmployeeNum = currentlyAvailableParkingSpots;
-                    while (entries.size() >= nonTargetedEmployeeNum) {
-                        if (!entries.get(nonTargetedEmployeeNum).distributedDays.contains(notFilledDay)) {
-                            entries.get(nonTargetedEmployeeNum).distributedDays.add(notFilledDay);
-                            entries.get(nonTargetedEmployeeNum).remainingDays -= 1;
+                    while (entries.size() > nonTargetedEmployeeNum) {
+                        final DistributedEntry nonTargetedEntry = entries.get(nonTargetedEmployeeNum);
+                        if (!nonTargetedEntry.distributedDays.contains(notFilledDay)
+                            && !nonTargetedEntry.daysToIgnore.contains(notFilledDay)
+                            && nonTargetedEntry.remainingDays > 0) {
+                            nonTargetedEntry.distributedDays.add(notFilledDay);
+                            nonTargetedEntry.remainingDays -= 1;
                             break;
                         }
                         nonTargetedEmployeeNum++;

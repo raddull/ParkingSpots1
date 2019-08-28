@@ -30,11 +30,13 @@ public class Main {
             //elem[0] -- name
             //elem[1] -- ratio
             //elem[2] -- days to ignore
+            float ratio = Float.parseFloat(elem[1]);
+            ratio = (float) Math.pow(ratio, 1.25);
             if (elem.length == 3) {
-                entries.add(createEntry(elem[0], Float.parseFloat(elem[1]), elem[2], calendarHelper));
+                entries.add(createEntry(elem[0], ratio, elem[2], calendarHelper));
             }
             else {
-                entries.add(new Entry(elem[0], Float.parseFloat(elem[1])));
+                entries.add(new Entry(elem[0], ratio));
             }
         }
 

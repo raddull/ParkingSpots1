@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 class Entry {
+    public static final Boolean DEBUG = false;
     final String name;
     final float ratio;
     final List<Integer> daysToIgnore;
@@ -39,7 +40,12 @@ class DedicatedEntry extends Entry {
 
     @Override
     public String toString() {
-        return "Person " + name + " with ratio " + ratio + " has " + days + " days in month and " + extraDays + " extra days and " + remainingDays + " remaining days. ";
+        if (DEBUG) {
+            return "Person " + name + " with ratio " + ratio + " has " + days + " days in month and " + extraDays + " extra days and " + remainingDays + " remaining days. ";
+        }
+        else {
+            return "Person " + name + " has " + days + " parking days. ";
+        }
     }
 }
 
