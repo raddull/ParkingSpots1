@@ -14,8 +14,9 @@ public class Main {
 
         List<String[]> targetDate = CSVReader.readFromCSV("targetDate.csv");
         LocalDate startDate = LocalDate.parse(targetDate.get(0)[0]);
+        LocalDate endDate = LocalDate.parse(targetDate.get(0)[1]);
 
-        CalendarHelper calendarHelper = new CalendarHelper(startDate);
+        CalendarHelper calendarHelper = new CalendarHelper(startDate, endDate);
         int workDaysInMonth = calendarHelper.numberOfWorkDaysInMonth();
 
         ParkingCalc pc = new ParkingCalc(workDaysInMonth, parkingSpots);

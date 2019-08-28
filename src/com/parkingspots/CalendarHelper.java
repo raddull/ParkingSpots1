@@ -10,9 +10,11 @@ import java.util.stream.Stream;
 public class CalendarHelper {
 
     private final LocalDate date;
+    private final LocalDate endDate;
 
-    CalendarHelper(LocalDate startDate) {
+    CalendarHelper(LocalDate startDate, LocalDate endDate) {
         this.date = startDate;
+        this.endDate = endDate;
     }
 
     public int numberOfWorkDaysInMonth() {
@@ -30,7 +32,7 @@ public class CalendarHelper {
     }
 
     private List<LocalDate> workDaysInMonth() {
-        return date.datesUntil(date.plusMonths(1))
+        return date.datesUntil(endDate)
             .filter(t -> Stream.of(MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY)
                 .anyMatch(t.getDayOfWeek()::equals))
             .collect(Collectors.toList());
