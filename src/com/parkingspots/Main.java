@@ -8,6 +8,8 @@ import java.util.stream.Collectors;
 
 public class Main {
 
+    private static final double COEFFICIENT = 1.1;
+
     public static void main(String[] args) {
         List<String[]> numberOfParkingSpots = CSVReader.readFromCSV("numberOfParkingSpots.csv");
         int parkingSpots = Integer.parseInt(numberOfParkingSpots.get(0)[0]);
@@ -32,7 +34,7 @@ public class Main {
             //elem[1] -- ratio
             //elem[2] -- days to ignore
             float ratio = Float.parseFloat(elem[1]);
-            ratio = (float) Math.pow(ratio, 1.25);
+            ratio = (float) Math.pow(ratio, COEFFICIENT);
             if (elem.length == 3) {
                 entries.add(createEntry(elem[0], ratio, elem[2], calendarHelper));
             }
