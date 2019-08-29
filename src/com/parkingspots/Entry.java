@@ -44,7 +44,7 @@ class DedicatedEntry extends Entry {
             return "Person " + name + " with ratio " + ratio + " has " + days + " days in month and " + extraDays + " extra days and " + remainingDays + " remaining days. ";
         }
         else {
-            return "Person " + name + " has " + days + " parking days. ";
+            return "Person " + name + " has " + days + " distrubuted days including " + extraDays + " extra days and " + remainingDays + " not distributed days. ";
         }
     }
 }

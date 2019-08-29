@@ -22,7 +22,7 @@ class ParkingCalc {
             sumDays += de.days;
         }
         int moreDays = numberOfWorkDays * parkingSpots - sumDays;
-        if (moreDays > 0 ) {
+        while (moreDays > 0 ) {
             for (DedicatedEntry de : dedicatedEntries) {
                 if (de.days + de.daysToIgnore.size() < numberOfWorkDays) {
                     de.days += 1;
